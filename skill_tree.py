@@ -3,6 +3,10 @@ from ability_module import Upgrade, AbilityUpgrade, TraitUpgrade
 from typing_extensions import Self
 from player import player
 
+# DESCRIPTION:
+# This is intended to be used in a node-based framework, allowing for unlock of skill upgrades on a branching path
+
+
 skill_trees = {'fighter': []}
 skill_tree_upgrades = {'fighter': []}
 
@@ -47,24 +51,33 @@ class SkillTreeNode:
     def __str__(self):
         return f'Node: {self.upgrade}'
 
-
-# class UpgradeSkillTreeNode(SkillTreeNode):
+# Work in progress feature to allow for a given upgrade node to be 'learned' multiple times
 # class RepeatableSkillTreeNode(SkillTreeNode):
 
+
+# applies all unlocked nodes in a given skill tree to the player character
+# original intent is to do this one time before 'a game' has started
 def apply_skill_tree(tree_key: str):
     for upgrade in skill_tree_upgrades[tree_key]:
         upgrade: TraitUpgrade
         upgrade.apply_to_base()
 
 
+# wrapper for the SkillTreeNode class function: learn_node
 def learn_node(node: SkillTreeNode):
     node.learn_node()
 
 
+# examples of static upgrades (as opposed to ones generated in the proposition function)
+# to be used in the skill tree
 damage_upgrade = TraitUpgrade('damage', abm.UPGRADE_TABLE['damage'])
 cast_rate_upgrade = TraitUpgrade('cast_rate', abm.UPGRADE_TABLE['cast_rate'])
 area_upgrade = TraitUpgrade('area', abm.UPGRADE_TABLE['area'])
 
+
+# basic skill tree construction
 fighter_node_01 = SkillTreeNode('fighter', damage_upgrade, True)
+# ^^^ This is the 'root' node, and as such, starts unlocked ^^^
+
 fighter_node_02 = SkillTreeNode('fighter', cast_rate_upgrade, False, [fighter_node_01])
-fighter_node_03 = SkillTreeNode('fighter', area_upgrade, False, [fighter_node_01, fighter_node_01])
+fighter_node_03 = SkillTreeNode('fighter', area_upgrade, False, [fighter_node_02])

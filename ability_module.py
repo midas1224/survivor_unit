@@ -3,8 +3,13 @@ import random
 from player import player
 from frozendict import frozendict
 
-# MOD_COLOR_LUT = {0: "white", 1: "green", 2: "blue", 3: "purple", 4: "gold"}
+# MOD_COLOR_LUT = {0: "white", 1: "green", 2: "blue", 3: "purple", 4: "gold"}  # Work in progress 'rarity' feature
 ABILITY_BASE_VALUES = frozendict({'area': 1.0, 'cast_rate': 5.0, 'damage': 20})
+
+
+# function to support pseudocode
+def detect_hit(ability_name: str):
+    print(f'detecting hit for {ability_name}')
 
 
 class Ability:
@@ -18,6 +23,9 @@ class Ability:
     def apply_upgrade(self, attribute_name, value):
         self.attributes[attribute_name] += value
 
+    def use_ability(self):
+        detect_hit(self.name)
+
 
 class DamagingAbility(Ability):
     def __init__(self, name: str = "default_damaging", damage: int = 100):
@@ -25,6 +33,7 @@ class DamagingAbility(Ability):
         self.damage = damage
 
 
+#  Base class for TraitUpgrade and AbilityUpgrade
 class Upgrade:
     def __init__(self, _improvement):
         self.improvement = _improvement
@@ -34,6 +43,7 @@ class Upgrade:
         pass
 
 
+# TraitUpgrades modify attributes on the player character
 class TraitUpgrade(Upgrade):
     def __init__(self, _type: str, _improvement):
         super().__init__(_improvement)
@@ -57,6 +67,7 @@ class TraitUpgrade(Upgrade):
                 f'{UPG_TYPE[type(self.improvement)]}')
 
 
+# AbilityUpgrades target specific abilities rather than attributes pertain directly to the player character
 class AbilityUpgrade(Upgrade):
     def __init__(self, target_ability: Ability, target_attribute: str, base_improvement):
         super().__init__(base_improvement)
@@ -78,6 +89,8 @@ class AbilityUpgrade(Upgrade):
                 f'by {formatted_factor(self.attribute)} {UPG_TYPE[type(self.improvement)]}')
 
 
+# These are the 'base upgrade values' i.e. the amount by which any given attribute is upgraded,
+# stored in a dictionary to assist extensibility
 UPGRADE_TABLE = {'speed': 0.10, 'armor': 6, 'experience': 0.10, 'health': 15, 'area': 0.10, 'cast_rate': 0.10,
                  'damage': 0.10, "crit_chance": 0.05, "crit_damage": 0.12}
 
@@ -88,6 +101,7 @@ def upgrade_key_to_str(key: str) -> str:
     return key
 
 
+# creates a list from all key in the upgrade table
 ATTR_STR_TABLE = {k: upgrade_key_to_str(k) for [k, v] in UPGRADE_TABLE.items()}
 UPG_TYPE = {int: 'points', float: 'percent'}
 
@@ -98,6 +112,7 @@ def formatted_factor(_type: str) -> str:
     return UPGRADE_TABLE[_type] * 100
 
 
+#  proposes 3 distinct upgrades for the player to choose from to upgrade their character
 def propose_upgrades():
     print("Choose an upgrade: ")
     # 1. Create upgrade propositions, referencing equipped abilities and traits
